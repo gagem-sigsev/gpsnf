@@ -1,10 +1,18 @@
 package main
 
 import (
+  "log"
   "fmt"
 )
 
-
 func main() {
-  fmt.Println("GPSNF")
+  handle, err := openDev("wlan0")
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer handle.Close()
+
+  captureLive(handle)
+
+  fmt.Println("Handle to device created. Starting Packet Capture...")
 }
