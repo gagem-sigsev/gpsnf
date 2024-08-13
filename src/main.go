@@ -1,35 +1,39 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
-  "flag"
-  "os"
+	"os"
 )
 
 func main() {
+	// Define flags
+	interfaceFlag := flag.String("interface", "", "Specify the network interface name")
+	packetCountFlag := flag.Int("count", 0, "Specify the number of packets to capture (0 for unlimited)")
 
-  // Define a string flag with a default value and a usage description.
-  interfaceFlag := flag.String("interface", "", "Specify the network interface name")
+	// Parse command-line flags
+	flag.Parse()
 
-  // Parse the command-line flags.
-  flag.Parse()
+	// Check if the required flag is provided
+	if *interfaceFlag == "" {
+		fmt.Println("Usage: ./progName --interface <interface name> [--count <number>]")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
 
-  // Check if the required flag is provided.
-  if *interfaceFlag == "" {
-    // Print usage and exit if the flag is not provided.
-    fmt.Println("Usage: ./progName --interface <interface name>")
-    flag.PrintDefaults()
-    os.Exit(1)
-  }
-
+	// Open the network device
 	handle, err := openDev(*interfaceFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer handle.Close()
 
-	captureLive(handle)
+	// Print out the packet count flag to verify it's being read correctly
+	fmt.Printf("Capturing packets on interface %s with count %d\n", *interfaceFlag, *packetCountFlag)
 
-	fmt.Println("Handle to device created. Starting Packet Capture...")
+	// Capture packets with the specified count
+	captureLive(handle, *packetCountFlag)
+
+	fmt.Println("Packet capture completed.")
 }
